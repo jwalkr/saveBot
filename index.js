@@ -46,8 +46,9 @@ bot.on("callback_query" , (callbackQuery) =>{
 })
 
 function actionRequest(message,actionRequest){
-    let userData = []
-    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail'){
+    let userData = {}
+    userData.actionType = actionRequest
+    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'atmStandardBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail' || actionRequest === 'closestTaxi' || actionRequest === ''){
         bot.sendMessage(message.chat.id , "Please give us your location ", {
             reply_markup: {
                 one_time_keyboard: true ,
@@ -59,6 +60,8 @@ function actionRequest(message,actionRequest){
         })
         .then(() =>{
             bot.once("location" , (message) => {
+                userData.latitude = message.location.longitude
+                userData.longitude = message.location.latitude
                 console.log([message.location.longitude , message.location.latitude].join(";"))
                 bot.sendMessage(message.chat.id , "Please give us your number" ,{
                     reply_markup: {
@@ -71,11 +74,18 @@ function actionRequest(message,actionRequest){
                 })
                 .then(() => {
                    bot.once("contact" , (message) => {
-                       console.log(message.contact.phone_number , message.contact.first_name)
+                       userData.phone_number = message.contact.phone_number
+                       userData.first_name = message.contact.first_name 
+                       userData.last_name = message.contact.last_name
+                       console.log(message.contact.phone_number , message.contact.first_name , message.contact.last_name)
                    })
                 })
             })
         })
+        console.log(userData)
+        actionRequestRouter(userData)
+        userData = null 
+        console.log(userData)
 
     }
 }
@@ -99,5 +109,67 @@ function menuRouter(userCallback_data){
             {text: 'MetroRail' , callback_data: 'busTrainRoutesMetroRail'}]]
 
     }
+}
+
+function actionRequestRouter(userData){
+    const userInputData = userData
+    if(userInputData.actionType === 'safePlace'){
+        safePlace(userInputData)
+    } else if(userInputData.actionType === 'emgServicesPoliceStation'){
+
+        emergencyService(userInputData)
+    } else if (userInputData.actionType === 'emgServicesHospital'){
+        emergencyService(userInputData)
+    } else if (userInputData.actionType === 'atmFnb'){
+        closestAtm(userInputData)
+    } else if (userInputData.actionType === 'atmAbsa'){
+        closestAtm(userInputData)
+    } else if (userInputData.actionType === 'atmCapitecBank'){
+        closestAtm(userInputData)
+    }else if (userInputData.actionType === 'busTrainRoutesMyCiti'){
+        closestBusTrainStation(userInputData)
+    }else if (userInputData.actionType === 'busTrainRoutesMetroRail'){
+        closestBusTrainStation(userInputData)
+    } else if(userInputData.actionType === 'uberRequest'){
+        uberRequest(userInputData)
+
+    }else if (userInputData.actionType === 'closestTaxi'){
+        closestTaxiRank(userInputData)
+
+    }
+
+}
+
+// safe place function 
+
+function safePlace(userData){
+
+}
+
+// closest atm function 
+function closestAtm(userData){
+
+}
+
+
+// closest emergency service
+function emergencyService(userData){
+
+}
+
+// closest taxi rank 
+
+function closestTaxiRank(userData){
+
+}
+
+// closest bus and strain station 
+function closestBusTrainStation(userData){
+
+}
+
+// uber request 
+function uberRequest(userData){
+
 }
 
