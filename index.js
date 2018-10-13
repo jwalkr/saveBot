@@ -126,7 +126,10 @@ function actionRequestRouter(userData){
         closestAtm(userInputData)
     } else if (userInputData.actionType === 'atmCapitecBank'){
         closestAtm(userInputData)
-    }else if (userInputData.actionType === 'busTrainRoutesMyCiti'){
+    } else if (userInputData.actionType === 'atmStandardBank'){
+        closestAtm(userInputData)
+    }
+    else if (userInputData.actionType === 'busTrainRoutesMyCiti'){
         closestBusTrainStation(userInputData)
     }else if (userInputData.actionType === 'busTrainRoutesMetroRail'){
         closestBusTrainStation(userInputData)
