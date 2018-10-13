@@ -4,6 +4,11 @@ const token = '677335275:AAFY9z6lzMUPFJpTEz1ShAUixSjabbnKA7g'
 const bot = new telegramBot(token , {polling: true})
 
 
+//Google Places
+const  GooglePlaces = require('node-googleplaces') ;
+const  map = require('google_directions');
+
+
 //bot initial message
 bot.on('message' , (msg) => {
     const msgText = msg.text
@@ -147,16 +152,95 @@ function actionRequestRouter(userData){
 
 function safePlace(userData){
 
+    let placeParams = {
+        location: userData.latitude+","+userData.longitute,
+        types: 'Petrol Station',
+        radius: 1000
+
+    }
+
+    //Locate the safest place
+    places.nearbySearch(placeParams,(err, res) => {
+        console.log(res.body.results[0].vicinity);
+        console.log("");
+        //get the list od steps required to go to the destination
+        getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+        //get the distance od the place
+        getDistance(res.body.results[0].vicinity,placeParams.location);
+        
+        
+      });
+
 }
 
 // closest atm function 
 function closestAtm(userData){
+
+
+    let placeParams = {
+        location: userData.latitude+","+userData.longitute,
+        types: 'atm',
+        radius: 1000
+
+    }
+
+    //Locate the safest place
+    places.nearbySearch(placeParams,(err, res) => {
+        console.log(res.body.results[0]);
+        console.log("");
+        //get the list od steps required to go to the destination
+        getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+        //get the distance od the place
+        getDistance(res.body.results[0].vicinity,placeParams.location);
+        
+        
+      });
 
 }
 
 
 // closest emergency service
 function emergencyService(userData){
+
+    let placeParams= {};
+
+    if(userData.actionType =='emgServicesHospital' )
+   {
+
+        placeParams = {
+           location: userData.latitude+","+userData.longitute,
+           types: 'doctors',
+           radius: 1000
+   
+       }
+
+
+
+   }else if(userData.actionType =='emgServicesPoliceStation')
+   {
+
+       placeParams = {
+           location: userData.latitude+","+userData.longitute,
+           types: 'police',
+           radius: 1000
+   
+       }
+
+
+   }
+
+//Locate the emergency place
+places.nearbySearch(placeParams,(err, res) => {
+   
+   console.log("");
+   //get the list od steps required to go to the destination
+   
+   getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+   //get the distance od the place
+   getDistance(res.body.results[0].vicinity,placeParams.location);
+   
+   
+ });
 
 }
 
@@ -173,6 +257,66 @@ function closestBusTrainStation(userData){
 
 // uber request 
 function uberRequest(userData){
+
+}
+
+
+//Additional Information
+
+//get distance in km's
+function getDistance(destination,userLatLong)
+{
+
+    let  params = {
+    
+        origin: userLatLong,
+        destination: destination,
+        key: "AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo",
+     
+    };
+
+    map.getDistance(params, function (err, data) {
+        if (err) {
+            console.log(err);
+            return 1;
+        }
+        console.log(data)
+    });
+
+}
+
+//get detailed steps to your destination
+function getDirectionsSteps(destination,userLatLong)
+{
+
+    let  params = {
+    
+        origin: userLatLong,
+        destination: destination,
+        key: "AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo",
+     
+    };
+    map.getDirectionSteps(params, function (err, steps){
+        if (err) {
+            console.log(err);
+            return 1;
+        }
+     
+        // parse the JSON object of steps into a string output
+        var output="";
+        var stepCounter = 1;
+        steps.forEach(function(stepObj) {
+            var instruction = stepObj.html_instructions;
+            instruction = instruction.replace(/<[^>]*>/g, ""); // regex to remove html tags
+            var distance = stepObj.distance.text;
+            var duration = stepObj.duration.text;
+            output += "Step " + stepCounter + ": " + instruction + " ("+ distance +"/"+ duration+")\n";
+            stepCounter++;
+        });	
+        console.log(output);
+    });
+
+
 
 }
 
