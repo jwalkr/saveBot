@@ -48,7 +48,7 @@ bot.on("callback_query" , (callbackQuery) =>{
 function actionRequest(message,actionRequest){
     let userData = {}
     userData.actionType = actionRequest
-    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'atmStandardBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail' || actionRequest === 'closestTaxi' || actionRequest === ''){
+    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'atmStandardBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail' || actionRequest === 'closestTaxi' || actionRequest === 'uberRequest'){
         bot.sendMessage(message.chat.id , "Please give us your location ", {
             reply_markup: {
                 one_time_keyboard: true ,
