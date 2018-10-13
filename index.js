@@ -71,7 +71,7 @@ function actionRequest(message,actionRequest){
                 })
                 .then(() => {
                    bot.once("contact" , (message) => {
-                       console.log(message.contact.phone_number , message.contact.first_name)
+                       console.log(message.contact.phone_number , message.contact.first_name , message.contact.last_name)
                    })
                 })
             })
