@@ -5,8 +5,8 @@ const bot = new telegramBot(token , {polling: true})
 
 
 //Google Places
-const  GooglePlaces = require('node-googleplaces') ;
-const  map = require('google_directions');
+// const  GooglePlaces = require('node-googleplaces') ;
+// const  map = require('google_directions');
 
 
 //bot initial message
