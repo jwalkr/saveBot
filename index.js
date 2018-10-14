@@ -9,6 +9,9 @@ const  map = require('google_directions');
  
 const places = new GooglePlaces('AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo');
 
+//Message Notification
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
 
 //bot initial message
 bot.on('message' , (msg) => {
@@ -152,7 +155,7 @@ function safePlace(userData){
 
     let placeParams = {
         location: userData.latitude+","+userData.longitute,
-        types: 'Petrol Station',
+        types: 'mall',
         radius: 1000
 
     }
@@ -164,14 +167,32 @@ function safePlace(userData){
         getDirectionsSteps(res.body.results[1].vicinity,placeParams.location);
         //get the distance of the place
         getDistance(res.body.results[1].vicinity,placeParams.location);
-        
-        
+       
+
       });
 
 }
 
 // closest atm function 
 function closestAtm(userData){
+
+    let placeParams = {
+        location: userData.latitude+","+userData.longitute,
+        types: 'atm',
+        radius: 1000
+
+    }
+
+    //Locate the safest place
+    places.nearbySearch(placeParams,(err, res) => {
+       
+        //get the list od steps required to go to the destination
+        getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+        //get the distance od the place
+        getDistance(res.body.results[0].vicinity,placeParams.location);
+        
+        
+      });
 
 }
 
@@ -233,6 +254,29 @@ function closestBusTrainStation(userData){
 
 // uber request 
 function uberRequest(userData){
+
+}
+
+
+function sendNotification(messageContent,userNumber)
+{
+
+
+        var xhr = new XMLHttpRequest(),
+            body = JSON.stringify({
+                "content": messageContent,
+                "to": [userNumber]
+            });
+         xhr.open("POST", 'https://platform.clickatell.com/messages', true);
+         xhr.setRequestHeader("Content-Type", "application/json");
+         xhr.setRequestHeader("Authorization", "ewBVar0-TOOwdDYwjO1PUg==");
+         xhr.onreadystatechange = function(){
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log('success');
+            }
+         };
+         
+         xhr.send(body);
 
 }
 
