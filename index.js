@@ -4,6 +4,7 @@ const token = '677335275:AAFY9z6lzMUPFJpTEz1ShAUixSjabbnKA7g'
 const bot = new telegramBot(token , {polling: true})
 
 //Google Places
+
 const  GooglePlaces = require('node-googleplaces') ;
 const  map = require('google_directions');
  
@@ -17,7 +18,6 @@ let userInfomation = {}
 const latitude = '-11.406255'
 const longitude = '20.659324'
 const number = '27734757309'
-
 
 
 

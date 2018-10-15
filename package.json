@@ -14,7 +14,15 @@
     "heroku": "^7.16.8",
     "node-googleplaces": "^0.1.2",
     "node-telegram-bot-api": "^0.30.0",
+<<<<<<< HEAD
     "open-graph-scraper": "^3.5.1",
     "xmlhttprequest": "^1.8.0"
+=======
+    "open-graph-scraper": "^3.5.1"
+  },
+  "devDependencies": {
+    "node-googleplaces": "^0.1.2",
+    "superagent": "^4.0.0-beta.5"
+>>>>>>> 492119079cf7bb369896515b51e978afe33f76d1
   }
 }
