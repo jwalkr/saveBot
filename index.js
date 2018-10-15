@@ -3,10 +3,22 @@ const token = '677335275:AAFY9z6lzMUPFJpTEz1ShAUixSjabbnKA7g'
 
 const bot = new telegramBot(token , {polling: true})
 
-
 //Google Places
 const  GooglePlaces = require('node-googleplaces') ;
 const  map = require('google_directions');
+ 
+const places = new GooglePlaces('AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo');
+
+//Message Notification
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+
+let userInfomation = {}
+
+const latitude = '-11.406255'
+const longitude = '20.659324'
+const number = '27734757309'
+
+
 
 
 //bot initial message
@@ -17,14 +29,12 @@ bot.on('message' , (msg) => {
             reply_markup: {
                 inline_keyboard: [[
                     {text: 'Safe Place' , callback_data: 'safePlace'},
-                    {text: 'Emergency Services' , callback_data: 'emgServices'},
+                    {text: 'ATM' , callback_data: 'atm'},
                     
                 ] , [
-                    {text: 'Closest Taxi' , callback_data: 'closestTaxi'},
-                    {text: 'ATM' , callback_data: 'atm'}
-                    ] ,[{text: 'Bus & Train Routes' , callback_data: 'busTrainRoutes'},
-                    {text: 'Uber Request' , callback_data: 'uberRequest'}
-    
+                    // {text: 'Closest Taxi' , callback_data: 'closestTaxi'},
+                    
+                    {text: 'Emergency Services' , callback_data: 'emgServices'}
                     ]]
             }
         })
@@ -51,9 +61,9 @@ bot.on("callback_query" , (callbackQuery) =>{
 })
 
 function actionRequest(message,actionRequest){
-    let userData = {}
-    userData.actionType = actionRequest
-    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'atmStandardBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail' || actionRequest === 'closestTaxi' || actionRequest === 'uberRequest'){
+
+    userInfomation.actionType = actionRequest
+    if(actionRequest === 'safePlace' || actionRequest === 'emgServicesPoliceStation' || actionRequest === 'emgServicesHospital' || actionRequest === 'atmFnb' || actionRequest === 'atmAbsa' || actionRequest === 'atmCapitecBank' || actionRequest === 'atmStandardBank' || actionRequest === 'busTrainRoutesMyCiti' || actionRequest === 'busTrainRoutesMetroRail' || actionRequest === 'closestTaxi' || actionRequest === ''){
         bot.sendMessage(message.chat.id , "Please give us your location ", {
             reply_markup: {
                 one_time_keyboard: true ,
@@ -65,8 +75,9 @@ function actionRequest(message,actionRequest){
         })
         .then(() =>{
             bot.once("location" , (message) => {
-                userData.latitude = message.location.longitude
-                userData.longitude = message.location.latitude
+                userInfomation.latitude = message.location.longitude
+                userInfomation.longitude = message.location.latitude
+                console.log(userInfomation)
                 console.log([message.location.longitude , message.location.latitude].join(";"))
                 bot.sendMessage(message.chat.id , "Please give us your number" ,{
                     reply_markup: {
@@ -79,18 +90,23 @@ function actionRequest(message,actionRequest){
                 })
                 .then(() => {
                    bot.once("contact" , (message) => {
-                       userData.phone_number = message.contact.phone_number
-                       userData.first_name = message.contact.first_name 
-                       userData.last_name = message.contact.last_name
+                    console.log(userInfomation)
+                    userInfomation.phone_number = message.contact.phone_number
+                    userInfomation.first_name = message.contact.first_name 
+                    userInfomation.last_name = message.contact.last_name
+                    console.log(userInfomation)
+
+                    handleBotService(userInfomation)
                        console.log(message.contact.phone_number , message.contact.first_name , message.contact.last_name)
                    })
                 })
+                
             })
+            
         })
-        console.log(userData)
-        actionRequestRouter(userData)
-        userData = null 
-        console.log(userData)
+        console.log(userInfomation)
+        
+        
 
     }
 }
@@ -117,10 +133,13 @@ function menuRouter(userCallback_data){
 }
 
 function actionRequestRouter(userData){
-    const userInputData = userData
-    if(userInputData.actionType === 'safePlace'){
+    
+    // console.log(userInputData)
+    if(userData.actionType === 'safePlace'){
+        console.log(userInputData)
         safePlace(userInputData)
-    } else if(userInputData.actionType === 'emgServicesPoliceStation'){
+    } 
+    else if(userInputData.actionType === 'emgServicesPoliceStation'){
 
         emergencyService(userInputData)
     } else if (userInputData.actionType === 'emgServicesHospital'){
@@ -131,10 +150,7 @@ function actionRequestRouter(userData){
         closestAtm(userInputData)
     } else if (userInputData.actionType === 'atmCapitecBank'){
         closestAtm(userInputData)
-    } else if (userInputData.actionType === 'atmStandardBank'){
-        closestAtm(userInputData)
-    }
-    else if (userInputData.actionType === 'busTrainRoutesMyCiti'){
+    }else if (userInputData.actionType === 'busTrainRoutesMyCiti'){
         closestBusTrainStation(userInputData)
     }else if (userInputData.actionType === 'busTrainRoutesMetroRail'){
         closestBusTrainStation(userInputData)
@@ -148,34 +164,138 @@ function actionRequestRouter(userData){
 
 }
 
+
+//RewriteFunction
+
+function handleBotService(userData)
+{
+
+    if(userData.actionType == 'safePlace')
+    {
+
+        let placeParams = {
+            location: latitude + ","+ longitude,
+    
+            types: 'Petrol Station',
+    
+            radius: 1000
+    
+        }
+
+        places.nearbySearch(placeParams,(err, res) => {
+            
+
+            //Send SMS
+    
+            // getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+            sendNotification('Your directions shall be sent to you shortly' , number);
+    
+          });
+      
+
+    }else if(userData.actionType ==  'emgServicesHospital')
+    {
+
+        let placeParams = {
+            location: latitude + ","+ longitude,
+    
+            types: 'doctors',
+    
+            radius: 1000
+    
+        }
+
+
+        places.nearbySearch(placeParams,(err, res) => {
+            
+
+            //Send SMS
+           
+            sendNotification('Your directions shall be sent to you shortly' , number);
+    
+          });
+
+
+    }else if(userData.actionType == 'emgServicesPoliceStation')
+    {
+
+
+        let placeParams = {
+            location: latitude + ","+ longitude,
+    
+            types: 'Police Station',
+    
+            radius: 1000
+    
+        }
+
+        places.nearbySearch(placeParams,(err, res) => {
+            
+
+            //Send SMS
+           
+            sendNotification('Your directions shall be sent to you shortly' , number);
+    
+          });
+
+
+    }else if(userData.actionType == 'atmFnb')
+    {
+
+        let placeParams = {
+            location: latitude + ","+ longitude,
+    
+            types: 'atm',
+    
+            radius: 1000
+    
+        }
+
+        places.nearbySearch(placeParams,(err, res) => {
+            
+
+            //Send SMS
+            sendNotification('Your directions shall be sent to you shortly' , number);
+    
+          });
+
+
+    }
+
+
+}
+
 // safe place function 
 
 function safePlace(userData){
+    console.log(userData)
 
     let placeParams = {
         location: userData.latitude+","+userData.longitute,
+
         types: 'Petrol Station',
+
         radius: 1000
 
     }
 
+    console.log(userData)
+
     //Locate the safest place
     places.nearbySearch(placeParams,(err, res) => {
-        console.log(res.body.results[0].vicinity);
-        console.log("");
+        console.log(res.body.results);
         //get the list od steps required to go to the destination
-        getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
-        //get the distance od the place
-        getDistance(res.body.results[0].vicinity,placeParams.location);
-        
-        
+        // getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+        // //get the distance of the place
+        // getDistance(res.body.results[0].vicinity,placeParams.location);
+       
+
       });
 
 }
 
 // closest atm function 
 function closestAtm(userData){
-
 
     let placeParams = {
         location: userData.latitude+","+userData.longitute,
@@ -186,8 +306,7 @@ function closestAtm(userData){
 
     //Locate the safest place
     places.nearbySearch(placeParams,(err, res) => {
-        console.log(res.body.results[0]);
-        console.log("");
+       
         //get the list od steps required to go to the destination
         getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
         //get the distance od the place
@@ -197,6 +316,8 @@ function closestAtm(userData){
       });
 
 }
+
+
 
 
 // closest emergency service
@@ -221,7 +342,7 @@ function emergencyService(userData){
 
        placeParams = {
            location: userData.latitude+","+userData.longitute,
-           types: 'police',
+           types: 'Police',
            radius: 1000
    
        }
@@ -231,13 +352,12 @@ function emergencyService(userData){
 
 //Locate the emergency place
 places.nearbySearch(placeParams,(err, res) => {
-   
-   console.log("");
+
    //get the list od steps required to go to the destination
    
-   getDirectionsSteps(res.body.results[0].vicinity,placeParams.location);
+   getDirectionsSteps(res.body.results[1].vicinity,placeParams.location);
    //get the distance od the place
-   getDistance(res.body.results[0].vicinity,placeParams.location);
+   getDistance(res.body.results[1].vicinity,placeParams.location);
    
    
  });
@@ -261,29 +381,32 @@ function uberRequest(userData){
 }
 
 
-//Additional Information
-
-//get distance in km's
-function getDistance(destination,userLatLong)
+function sendNotification(messageContent,userNumber)
 {
 
-    let  params = {
-    
-        origin: userLatLong,
-        destination: destination,
-        key: "AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo",
-     
-    };
 
-    map.getDistance(params, function (err, data) {
-        if (err) {
-            console.log(err);
-            return 1;
-        }
-        console.log(data)
-    });
+        var xhr = new XMLHttpRequest(),
+            body = JSON.stringify({
+                "content": messageContent,
+                "to": [userNumber]
+            });
+         xhr.open("POST", 'https://platform.clickatell.com/messages', true);
+         xhr.setRequestHeader("Content-Type", "application/json");
+         xhr.setRequestHeader("Authorization", "ewBVar0-TOOwdDYwjO1PUg==");
+         xhr.onreadystatechange = function(){
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log('success');
+            }
+         };
+         
+         xhr.send(body);
 
 }
+
+
+
+//Additional Information on places
+
 
 //get detailed steps to your destination
 function getDirectionsSteps(destination,userLatLong)
@@ -319,4 +442,27 @@ function getDirectionsSteps(destination,userLatLong)
 
 
 }
+
+//get distance in km's
+function getDistance(destination,userLatLong)
+{
+
+    let  params = {
+    
+        origin: userLatLong,
+        destination: destination,
+        key: "AIzaSyD_nm-KcgETF1MQZfiX2uxHcWa1PLNf4mo",
+     
+    };
+
+    map.getDistance(params, function (err, data) {
+        if (err) {
+            console.log(err);
+            return 1;
+        }
+        console.log(data)
+    });
+
+}
+
 
